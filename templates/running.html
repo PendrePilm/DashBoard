@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiques Garmin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Graphiques avec Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen p-6 font-sans">
     <div class="max-w-4xl mx-auto space-y-8">
         
-        <!-- Navigation Retour -->
+        <!-- Retour -->
         <div>
             <a href="/" class="inline-flex items-center text-xs font-semibold text-gray-400 hover:text-white transition-colors">
                 &larr; Retour au Dashboard
@@ -19,25 +18,14 @@
         </div>
 
         <!-- En-tête -->
-        <header class="pb-6 border-b border-gray-800 flex justify-between items-end">
-            <div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight">🏃 Statistiques Garmin</h1>
-                <p class="text-sm text-gray-400 mt-1">Analyse détaillée & courbes de progression</p>
-            </div>
-            <!-- Filtre Type d'activité -->
-            <div>
-                <select id="typeFilter" onchange="filterActivities()" class="bg-gray-900 border border-gray-700 text-xs text-gray-200 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="ALL">Toutes les activités</option>
-                    <option value="Running">Course à pied</option>
-                    <option value="Cycling">Vélo</option>
-                    <option value="Walking">Marche</option>
-                </select>
-            </div>
+        <header class="pb-6 border-b border-gray-800">
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">🏃 Statistiques & Activités Garmin</h1>
+            <p class="text-sm text-gray-400 mt-1">Graphique & Totaux calculés exclusivement sur la Course à Pied</p>
         </header>
 
-        <!-- Section Années (Sélectionnable) -->
+        <!-- Cartes Annuelles (Stats Course Uniquement) -->
         <section>
-            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Sélectionner une Année</h2>
+            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Sélectionner une Année (Bilan Run)</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="yearCards">
                 {% for year, stat in yearly_stats.items() %}
                 <div onclick="selectYear('{{ year }}')" id="card-{{ year }}" 
@@ -45,16 +33,16 @@
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-2xl font-black text-white tracking-wide">{{ year }}</span>
                         <span class="px-2.5 py-0.5 text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full">
-                            {{ stat.count }} sorties
+                            {{ stat.count }} run{% if stat.count > 1 %}s{% endif %}
                         </span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-800/80">
                         <div>
-                            <p class="text-xs text-gray-500">Total Borne</p>
+                            <p class="text-xs text-gray-500">Distance Run</p>
                             <p class="text-xl font-bold text-blue-400">{{ stat.total_km }} <span class="text-xs font-normal text-gray-400">km</span></p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500">Heures</p>
+                            <p class="text-xs text-gray-500">Heures Run</p>
                             <p class="text-xl font-bold text-emerald-400">{{ stat.total_hours }} <span class="text-xs font-normal text-gray-400">h</span></p>
                         </div>
                     </div>
@@ -63,23 +51,21 @@
             </div>
         </section>
 
-        <!-- Section Graphique Dynamique -->
+        <!-- Graphique (Km Course Uniquement) -->
         <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-sm font-bold text-white uppercase tracking-wider">
-                    📈 Volume de kilomètres en <span id="chartYearTitle" class="text-blue-400">{{ current_year }}</span>
-                </h2>
-            </div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                📈 Kilomètres Course à Pied en <span id="chartYearTitle" class="text-blue-400">{{ current_year }}</span>
+            </h2>
             <div class="h-64 relative">
                 <canvas id="kmChart"></canvas>
             </div>
         </section>
 
-        <!-- Liste des activités filtrées -->
+        <!-- Liste complète de toutes les activités de l'année -->
         <section class="space-y-4 pt-2">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Séances de l'année <span id="listYearTitle" class="text-blue-400">{{ current_year }}</span>
+                    Toutes les activités de <span id="listYearTitle" class="text-blue-400">{{ current_year }}</span>
                 </h2>
                 <span id="activityCount" class="text-xs text-gray-500"></span>
             </div>
@@ -87,14 +73,18 @@
             <div id="activitiesList" class="space-y-3">
                 {% for act in activities %}
                 <div class="activity-item bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all rounded-xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4"
-                     data-year="{{ act.year }}" data-type="{{ act.type }}">
+                     data-year="{{ act.year }}">
                     <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl text-blue-400 flex items-center justify-center font-bold text-xl flex-shrink-0">
-                            🏃
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl text-blue-400 flex items-center justify-center font-bold text-2xl flex-shrink-0">
+                            {% if act.type == 'Running' %}🏃
+                            {% elif act.type == 'Cycling' %}🚴
+                            {% elif act.type == 'Swimming' %}🏊
+                            {% elif act.type == 'Walking' %}🥾
+                            {% else %}🎯{% endif %}
                         </div>
                         <div>
                             <h3 class="font-bold text-white text-base">{{ act.name }}</h3>
-                            <div class="flex flex-wrap items-center gap-2 text-xs text-gray-400 mt-1">
+                            <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
                                 <span class="bg-gray-800 px-2.5 py-0.5 rounded text-gray-300 font-medium">{{ act.type }}</span>
                                 <span>📅 {{ act.date }}</span>
                             </div>
@@ -126,13 +116,11 @@
 
     </div>
 
-    <!-- Script JavaScript pour l'interactivité et les graphiques -->
     <script>
         const yearlyData = {{ yearly_stats | tojson }};
         let selectedYear = "{{ current_year }}";
         let chartInstance = null;
 
-        // Initialisation du graphique
         function initChart(year) {
             const ctx = document.getElementById('kmChart').getContext('2d');
             const dataForYear = yearlyData[year] ? yearlyData[year].monthly_km : Array(12).fill(0);
@@ -146,7 +134,7 @@
                 data: {
                     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
                     datasets: [{
-                        label: 'Kilomètres parcourus',
+                        label: 'Km Course à pied',
                         data: dataForYear,
                         borderColor: '#60a5fa',
                         backgroundColor: 'rgba(96, 165, 250, 0.15)',
@@ -169,11 +157,9 @@
             });
         }
 
-        // Sélectionner une année
         function selectYear(year) {
             selectedYear = year;
             
-            // Mise à jour visuelle des cartes
             document.querySelectorAll('.year-card').forEach(card => {
                 card.classList.remove('border-blue-500', 'ring-2', 'ring-blue-500');
                 card.classList.add('border-gray-800');
@@ -184,29 +170,20 @@
                 activeCard.classList.add('border-blue-500', 'ring-2', 'ring-blue-500');
             }
 
-            // Mettre à jour les titres
             document.getElementById('chartYearTitle').innerText = year;
             document.getElementById('listYearTitle').innerText = year;
 
-            // Mettre à jour le graphique et les filtres
             initChart(year);
             filterActivities();
         }
 
-        // Filtrer les activités selon l'année et le type sélectionné
         function filterActivities() {
-            const selectedType = document.getElementById('typeFilter').value;
             const items = document.querySelectorAll('.activity-item');
             let visibleCount = 0;
 
             items.forEach(item => {
                 const itemYear = item.getAttribute('data-year');
-                const itemType = item.getAttribute('data-type');
-
-                const matchYear = (itemYear === selectedYear);
-                const matchType = (selectedType === 'ALL' || itemType === selectedType);
-
-                if (matchYear && matchType) {
+                if (itemYear === selectedYear) {
                     item.style.display = 'flex';
                     visibleCount++;
                 } else {
@@ -217,7 +194,6 @@
             document.getElementById('activityCount').innerText = `${visibleCount} activité(s)`;
         }
 
-        // Au chargement initial
         document.addEventListener('DOMContentLoaded', () => {
             selectYear(selectedYear);
         });
