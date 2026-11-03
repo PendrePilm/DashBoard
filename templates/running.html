@@ -19,11 +19,34 @@
 
         <!-- En-tête -->
         <header class="pb-6 border-b border-gray-800">
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">🏃 Statistiques & Activités Garmin</h1>
-            <p class="text-sm text-gray-400 mt-1">Graphique & Totaux calculés exclusivement sur la Course à Pied</p>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">🏃 Statistiques & Records Garmin</h1>
+            <p class="text-sm text-gray-400 mt-1">Analyse de tes performances et historique des sorties</p>
         </header>
 
-        <!-- Cartes Annuelles (Stats Course Uniquement) -->
+        <!-- Section Records Personnels (PR) -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">🏆 Records Personnels (PR)</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-gray-900 border border-amber-500/30 rounded-xl p-4 shadow-lg text-center">
+                    <p class="text-xs font-medium text-amber-400 uppercase tracking-wider">5 KM</p>
+                    <p class="text-2xl font-black text-white mt-1">{{ records['5k'] }}</p>
+                </div>
+                <div class="bg-gray-900 border border-amber-500/30 rounded-xl p-4 shadow-lg text-center">
+                    <p class="text-xs font-medium text-amber-400 uppercase tracking-wider">10 KM</p>
+                    <p class="text-2xl font-black text-white mt-1">{{ records['10k'] }}</p>
+                </div>
+                <div class="bg-gray-900 border border-amber-500/30 rounded-xl p-4 shadow-lg text-center">
+                    <p class="text-xs font-medium text-amber-400 uppercase tracking-wider">Semi-Marathon</p>
+                    <p class="text-2xl font-black text-white mt-1">{{ records['half_marathon'] }}</p>
+                </div>
+                <div class="bg-gray-900 border border-amber-500/30 rounded-xl p-4 shadow-lg text-center">
+                    <p class="text-xs font-medium text-amber-400 uppercase tracking-wider">Marathon</p>
+                    <p class="text-2xl font-black text-white mt-1">{{ records['marathon'] }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cartes Annuelles -->
         <section>
             <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Sélectionner une Année (Bilan Run)</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="yearCards">
@@ -51,7 +74,7 @@
             </div>
         </section>
 
-        <!-- Graphique (Km Course Uniquement) -->
+        <!-- Graphique -->
         <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
             <h2 class="text-sm font-bold text-white uppercase tracking-wider mb-4">
                 📈 Kilomètres Course à Pied en <span id="chartYearTitle" class="text-blue-400">{{ current_year }}</span>
@@ -61,7 +84,7 @@
             </div>
         </section>
 
-        <!-- Liste complète de toutes les activités de l'année -->
+        <!-- Liste des activités -->
         <section class="space-y-4 pt-2">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
